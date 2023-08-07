@@ -8,6 +8,7 @@ def safely_get_value(
         dict: Mapping,
         key: Any,
         default: Union[T, None]) -> Union[Any, T]:
+    """returns first dict value"""
     if key in dict:
         return dict[key]
     else:
