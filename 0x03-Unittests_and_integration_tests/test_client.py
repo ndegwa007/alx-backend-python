@@ -30,3 +30,29 @@ class TestGithubOrgClient(unittest.TestCase):
             instance = GithubOrgClient("google")
             result = instance._public_repos_url
             self.assertEqual(result, mock_repo_url.return_value["repos_url"])
+
+    @patch(
+            'client.get_json',
+            return_value={"repos_url": "http://bigBrain.url"})
+    def test_public_repos(self, first_patch):
+        """unit test GithubOrgClient.public_repos"""
+        with patch(
+                'client.GithubOrgClient._public_repos_url',
+                new_callable=PropertyMock,
+                return_value=[]) as second_patch:
+            instance = GithubOrgClient("BigBrain")
+            test_repos = instance.public_repos(license="SmallBrain")
+            self.assertEqual(test_repos, second_patch.return_value)
+            first_patch.assert_called_once()
+            second_patch.assert_called_once()
+
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}},
+            "my_license", True),
+        ({"license": {"key": "other_license"}},
+            "my_license", False)
+        ])
+    def test_has_license(self, repo, key, expected):
+        """unit test has_license"""
+        instance = GithubOrgClient.has_license(repo, key)
+        self.assertEqual(instance, expected)
